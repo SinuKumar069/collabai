@@ -27,7 +27,6 @@ export default function DashboardPage() {
       router.push("/auth/signin");
       return;
     }
-
     if (status === "authenticated") {
       fetchProjects();
     }
@@ -38,12 +37,8 @@ export default function DashboardPage() {
       setLoading(true);
       const response = await fetch("/api/projects");
       const data = await response.json();
-
-      if (response.ok) {
-        setProjects(data.projects);
-      } else {
-        setError(data.message || "Failed to fetch projects");
-      }
+      if (response.ok) setProjects(data.projects);
+      else setError(data.message || "Failed to fetch projects");
     } catch (err) {
       setError("An unexpected error occurred");
     } finally {
@@ -51,142 +46,161 @@ export default function DashboardPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyles = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
       case "archived":
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
     }
   };
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="max-w-7xl mx-auto px-6 py-10 space-y-8 animate-pulse">
+        <div className="h-10 w-48 bg-slate-800 rounded-lg" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-32 bg-slate-900 border border-slate-800 rounded-xl"
+            />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Welcome back, {session?.user?.name || session?.user?.email}!
-        </p>
-      </div>
-
-      <div className="mb-6 flex justify-between items-center">
-        <div className="flex space-x-4">
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Total Projects</p>
-            <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Active</p>
-            <p className="text-2xl font-bold text-green-600">
-              {projects.filter((p) => p.status === "active").length}
-            </p>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-50">
+            Dashboard
+          </h1>
+          <p className="text-slate-400 font-medium">
+            Welcome back,{" "}
+            <span className="text-blue-400">
+              {session?.user?.name || session?.user?.email}
+            </span>
+          </p>
         </div>
-
         <Link
           href="/projects/new"
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-950 bg-slate-50 rounded-full hover:bg-blue-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
         >
-          + New Project
+          + Create New Project
         </Link>
       </div>
 
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-12 h-12 bg-blue-500 rounded-full blur-xl" />
+          </div>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+            Total Projects
+          </p>
+          <p className="text-3xl font-bold text-slate-50 mt-2">
+            {projects.length}
+          </p>
+        </div>
+
+        <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-12 h-12 bg-emerald-500 rounded-full blur-xl" />
+          </div>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+            Active Now
+          </p>
+          <p className="text-3xl font-bold text-emerald-400 mt-2">
+            {projects.filter((p) => p.status === "active").length}
+          </p>
+        </div>
+      </div>
+
       {error && (
-        <div className="mb-6 rounded-md bg-red-50 p-4">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-sm">
+          {error}
         </div>
       )}
 
+      {/* Projects Logic */}
       {projects.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-            />
-          </svg>
-          <h3 className="mt-2 text-lg font-medium text-gray-900">No projects yet</h3>
-          <p className="mt-1 text-sm text-gray-600">
-            Get started by creating your first project.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/projects/new"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/20">
+          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-500">
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              Create project
-            </Link>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
           </div>
+          <h3 className="text-xl font-bold text-slate-50">Empty Space</h3>
+          <p className="text-slate-400 mt-1 max-w-xs text-center">
+            Your innovative ideas haven't started yet. Let's create something
+            great.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <div
               key={project._id}
-              className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+              className="group relative bg-slate-900/40 border border-slate-800 rounded-2xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden"
             >
-              <div className="p-6">
+              <div className="p-6 space-y-4">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 truncate">
-                    {project.name}
-                  </h3>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                      project.status
-                    )}`}
-                  >
-                    {project.status}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                  {project.description}
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-blue-600">
-                        {project.owner.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-600">
-                      by {project.owner.name}
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-50 group-hover:text-blue-400 transition-colors truncate">
+                      {project.name}
+                    </h3>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyles(project.status)}`}
+                    >
+                      {project.status}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500">
+                </div>
+
+                <p className="text-sm text-slate-400 line-clamp-2 min-h-[40px]">
+                  {project.description}
+                </p>
+
+                <div className="pt-4 flex items-center justify-between border-t border-slate-800/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-slate-950">
+                      {project.owner.name.charAt(0)}
+                    </div>
+                    <span className="text-xs font-medium text-slate-400 tracking-tight">
+                      {project.owner.name}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500 italic">
                     {new Date(project.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-                <Link
-                  href={`/projects/${project._id}`}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                >
-                  View project &rarr;
-                </Link>
-              </div>
+
+              <Link
+                href={`/projects/${project._id}`}
+                className="block w-full py-3 text-center text-xs font-bold text-slate-400 group-hover:text-slate-50 group-hover:bg-blue-600/10 transition-all border-t border-slate-800/50"
+              >
+                Enter Workspace →
+              </Link>
             </div>
           ))}
         </div>

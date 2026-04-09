@@ -5,76 +5,96 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    const handleSignOut = async () => {
-        await signOut({ redirect: false });
-        router.push("/auth/signin");
-        router.refresh();
-    };
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/auth/signin");
+    router.refresh();
+  };
 
-    return (
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                    <div className="flex items-center">
-                        <Link href="/" className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">CA</span>
-                            </div>
-                            <span className="text-xl font-semibold text-gray-900">CollabAI</span>
-                        </Link>
-                    </div>
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-slate-800/50 bg-[#020617]/80 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group-hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all">
+                <span className="text-white font-bold text-xs tracking-tighter">
+                  CA
+                </span>
+              </div>
+              <span className="text-lg font-bold tracking-tight text-slate-50 group-hover:text-blue-400 transition-colors">
+                CollabAI
+              </span>
+            </Link>
+          </div>
 
-                    <nav className="flex items-center space-x-4">
-                        {status === "loading" ? (
-                            <span className="text-sm text-gray-500">Loading...</span>
-                        ) : session ? (
-                            <>
-                                <Link
-                                    href="/dashboard"
-                                    className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                                >
-                                    Dashboard
-                                </Link>
-                                <Link
-                                    href="/projects"
-                                    className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                                >
-                                    Projects
-                                </Link>
-                                <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-200">
-                                    <span className="text-sm text-gray-600">
-                                        {session.user?.name || session.user?.email}
-                                    </span>
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
-                                    >
-                                        Sign out
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <Link
-                                    href="/auth/signin"
-                                    className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                                >
-                                    Sign in
-                                </Link>
-                                <Link
-                                    href="/auth/register"
-                                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-                                >
-                                    Get started
-                                </Link>
-                            </>
-                        )}
-                    </nav>
+          {/* Navigation Section */}
+          <nav className="flex items-center space-x-1">
+            {status === "loading" ? (
+              <div className="h-8 w-24 bg-slate-800 animate-pulse rounded-md" />
+            ) : session ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/auth/dashboard"
+                  className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-50 transition-colors rounded-md hover:bg-slate-800/50"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/projects"
+                  className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-50 transition-colors rounded-md hover:bg-slate-800/50"
+                >
+                  Projects
+                </Link>
+
+                <div className="h-6 w-[1px] bg-slate-800 mx-2" />
+
+                <div className="flex items-center gap-4 pl-2">
+                  <div className="hidden sm:flex flex-col items-end">
+                    <span className="text-xs font-medium text-slate-200">
+                      {session.user?.name || "User"}
+                    </span>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                      Pro Plan
+                    </span>
+                  </div>
+
+                  {/* User Avatar Placeholder */}
+                  <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                    {session.user?.name?.charAt(0) || "U"}
+                  </div>
+
+                  <button
+                    onClick={handleSignOut}
+                    className="text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors border border-slate-800 px-3 py-1.5 rounded-lg hover:border-red-900/30 hover:bg-red-900/10"
+                  >
+                    Sign out
+                  </button>
                 </div>
-            </div>
-        </header>
-    );
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/auth/signin"
+                  className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-50 transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-2 text-sm font-bold text-slate-950 bg-slate-50 rounded-full hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105"
+                >
+                  Get started
+                </Link>
+              </div>
+            )}
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
 }
