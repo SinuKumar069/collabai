@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import TaskModel from "@/models/TaskModel";
 import ProjectModel from "@/models/ProjectModel";
 import dbConnect from "@/lib/db";
-import { Types } from "mongoose";
 
-// GET: Fetch single project by ID
+// GET: Fetch single task by ID
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -23,23 +23,23 @@ export async function GET(
         await dbConnect();
 
         const { id } = await params;
-        const project = await ProjectModel.findById(id)
-            .populate("owner", "name email")
-            .populate("members", "name email");
+        const task = await TaskModel.findById(id)
+            .populate("assignee", "name email")
+            .populate("createdBy", "name email")
+            .populate("project", "name owner members");
 
-        if (!project) {
+        if (!task) {
             return NextResponse.json(
-                { success: false, message: "Project not found" },
+                { success: false, message: "Task not found" },
                 { status: 404 }
             );
         }
 
-        // Check if user has access (owner or member)
+        // Verify access via project
+        const project = task.project as any;
         const hasAccess =
-            project.owner._id.toString() === session.user.id ||
-            project.members.some(
-                (member: any) => member._id.toString() === session.user.id
-            );
+            project.owner.toString() === session.user.id ||
+            project.members.some((m: any) => m.toString() === session.user.id);
 
         if (!hasAccess) {
             return NextResponse.json(
@@ -48,17 +48,17 @@ export async function GET(
             );
         }
 
-        return NextResponse.json({ success: true, project }, { status: 200 });
+        return NextResponse.json({ success: true, task }, { status: 200 });
     } catch (error) {
-        console.error("Fetch project error:", error);
+        console.error("Fetch task error:", error);
         return NextResponse.json(
-            { success: false, message: "Failed to fetch project" },
+            { success: false, message: "Failed to fetch task" },
             { status: 500 }
         );
     }
 }
 
-// PUT: Update project
+// PUT: Update task
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -76,47 +76,53 @@ export async function PUT(
         await dbConnect();
 
         const { id } = await params;
-        const project = await ProjectModel.findById(id);
+        const task = await TaskModel.findById(id).populate("project");
 
-        if (!project) {
+        if (!task) {
             return NextResponse.json(
-                { success: false, message: "Project not found" },
+                { success: false, message: "Task not found" },
                 { status: 404 }
             );
         }
 
-        // Only owner can update
-        if (project.owner.toString() !== session.user.id) {
+        // Verify access via project
+        const project = task.project as any;
+        const hasAccess =
+            project.owner.toString() === session.user.id ||
+            project.members.some((m: any) => m.toString() === session.user.id);
+
+        if (!hasAccess) {
             return NextResponse.json(
-                { success: false, message: "Only owner can update this project" },
+                { success: false, message: "Access denied" },
                 { status: 403 }
             );
         }
 
-        const { name, description, status, members } = await request.json();
+        const { title, description, status, assignee, priority, dueDate } =
+            await request.json();
 
-        const updatedProject = await ProjectModel.findByIdAndUpdate(
+        const updatedTask = await TaskModel.findByIdAndUpdate(
             id,
-            { name, description, status, members },
+            { title, description, status, assignee, priority, dueDate },
             { new: true, runValidators: true }
         )
-            .populate("owner", "name email")
-            .populate("members", "name email");
+            .populate("assignee", "name email")
+            .populate("createdBy", "name email");
 
         return NextResponse.json(
-            { success: true, project: updatedProject },
+            { success: true, task: updatedTask },
             { status: 200 }
         );
     } catch (error) {
-        console.error("Update project error:", error);
+        console.error("Update task error:", error);
         return NextResponse.json(
-            { success: false, message: "Failed to update project" },
+            { success: false, message: "Failed to update task" },
             { status: 500 }
         );
     }
 }
 
-// DELETE: Delete project
+// DELETE: Delete task
 export async function DELETE(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -134,33 +140,38 @@ export async function DELETE(
         await dbConnect();
 
         const { id } = await params;
-        const project = await ProjectModel.findById(id);
+        const task = await TaskModel.findById(id).populate("project");
 
-        if (!project) {
+        if (!task) {
             return NextResponse.json(
-                { success: false, message: "Project not found" },
+                { success: false, message: "Task not found" },
                 { status: 404 }
             );
         }
 
-        // Only owner can delete
-        if (project.owner.toString() !== session.user.id) {
+        // Verify access via project
+        const project = task.project as any;
+        const hasAccess =
+            project.owner.toString() === session.user.id ||
+            project.members.some((m: any) => m.toString() === session.user.id);
+
+        if (!hasAccess) {
             return NextResponse.json(
-                { success: false, message: "Only owner can delete this project" },
+                { success: false, message: "Access denied" },
                 { status: 403 }
             );
         }
 
-        await ProjectModel.findByIdAndDelete(id);
+        await TaskModel.findByIdAndDelete(id);
 
         return NextResponse.json(
-            { success: true, message: "Project deleted successfully" },
+            { success: true, message: "Task deleted successfully" },
             { status: 200 }
         );
     } catch (error) {
-        console.error("Delete project error:", error);
+        console.error("Delete task error:", error);
         return NextResponse.json(
-            { success: false, message: "Failed to delete project" },
+            { success: false, message: "Failed to delete task" },
             { status: 500 }
         );
     }

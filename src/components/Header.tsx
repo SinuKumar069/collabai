@@ -21,7 +21,7 @@ export default function Header() {
           {/* Logo Section */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group-hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all">
+              <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] group-hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all">
                 <span className="text-white font-bold text-xs tracking-tighter">
                   CA
                 </span>
@@ -51,7 +51,7 @@ export default function Header() {
                   Projects
                 </Link>
 
-                <div className="h-6 w-[1px] bg-slate-800 mx-2" />
+                <div className="h-6 w-1px bg-slate-800 mx-2" />
 
                 <div className="flex items-center gap-4 pl-2">
                   <div className="hidden sm:flex flex-col items-end">
