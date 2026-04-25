@@ -49,20 +49,16 @@
 
 ---
 
-## Phase 3: Core CRUD & Redis Caching
+## Phase 3: Core CRUD & Redis Caching ✅
 
-**Goals:**
-- Task CRUD operations
-- Redis caching for Dashboard stats
-- Rate limiting with Redis
+**Completed:**
+- [x] Define Task schema (src/models/TaskModel.ts)
+- [x] API routes: Tasks (create, read, update, delete) (src/app/api/tasks and src/app/api/tasks/[id])
+- [x] Redis connection setup (src/lib/redis.ts)
+- [x] Cache Dashboard stats (task counts, completion rate) (src/lib/cache.ts) with invalidation on task mutations
+- [x] Rate limiting middleware (Redis-based) (src/lib/rateLimit.ts + src/middleware.ts)
 
-**Tasks:**
-- [ ] Define Task schema
-- [ ] API routes: Tasks (create, read, update, delete)
-- [ ] Redis connection setup
-- [ ] Cache Dashboard stats (task counts, completion rate)
-- [ ] Rate limiting middleware (Redis-based)
-- [ ] Commit: `Phase 3: CRUD & Redis`
+**Commit:** `Phase 3: CRUD & Redis`
 
 ---
 
